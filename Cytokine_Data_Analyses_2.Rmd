@@ -1,0 +1,212 @@
+---
+title: "Steriod_responsive_Cytokines_AERD"
+author: "Cailu Lin"
+date: "2022/10/07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r packages, echo=FALSE}
+rm(list = ls())
+graphics.off()
+pacman::p_load(tidyverse, readxl, ggpubr, GGally, sjmisc, goeveg, irr, gtsummary, tableone, plyr, ggstatsplot, scales,pheatmap, broom, dplyr,xlsx, rstatix)
+```
+
+
+```{r load data, echo=FALSE}
+dat_final<-read.csv("Data_cytokin_demo.csv")
+```
+
+
+```{r summary demo, echo=FALSE}
+tbl<-dat_final%>%
+  distinct(ptid,Conditions, .keep_all = TRUE)%>%
+  filter(as.numeric(ptid)>1000)%>%
+  filter(Conditions=="ASA")%>%
+  mutate(Mucus=recode(Mucus,"Y"=1, "N"=0))%>%
+  mutate(Mucus.1=recode(Mucus.1,"Y"=1, "N"=0))%>%
+  mutate(Yellow.Mucus=recode(Yellow.Mucus,"Y"=2, "N"=0))%>%
+  mutate(Yellow.Mucus.1=recode(Yellow.Mucus.1,"Y"=1, "N"=0))%>%
+  mutate(Thick.Mucus=recode(Thick.Mucus,"Y"=1, "N"=0))%>%
+  mutate(Thick.Mucus.1=recode(Thick.Mucus.1,"Y"=1, "N"=0))
+
+
+tbl$PolypsBoth<-(as.numeric(tbl$Polyps)+as.numeric(tbl$Polyps.1))
+tbl$MucusBoth<-(tbl$Mucus+tbl$Mucus.1)+(tbl$Yellow.Mucus+tbl$Yellow.Mucus.1)
+tbl$Thick.MucusBoth<-(tbl$Thick.Mucus+tbl$Thick.Mucus.1)
+
+data.frame(table(tbl$PolypsBoth))
+data.frame(table(tbl$MucusBoth))
+data.frame(table(tbl$Yellow.MucusBoth))
+
+
+tbl$ASA.dose<-as.numeric(tbl$ASA.dose)
+tbl$ACT.score<-as.numeric(tbl$ACT.score)
+tbl$Months.since.desensitization<-as.numeric(tbl$Months.since.desensitization)
+
+
+tbl2<-tbl%>%
+  filter(Conditions=="ASA")%>%
+  dplyr::select(ACT.score,Months.since.desensitization, ASA.dose)%>%
+  tbl_summary(statistic = list(all_continuous() ~ "{mean} ({sd})", 
+                     all_categorical() ~ "{n} / {N} ({p}%)"),
+    digits = all_continuous() ~ 2,
+    type=c(ACT.score, ASA.dose,Months.since.desensitization) ~"continuous")
+ 
+
+print(tbl2)
+
+```
+
+
+
+```{r}
+tbl3<-tbl%>%
+  dplyr::select(Conditions, ACT.score,ASA.dose, PolypsBoth, MucusBoth,  Thick.MucusBoth, Yellow.MucusBoth,Months.since.desensitization)%>%
+  tbl_summary(by = Conditions, statistic = list(all_continuous() ~ "{median} ({IQR})", 
+                     all_categorical() ~ "{n} / {N} ({p}%)"),
+    digits = all_continuous() ~ 2,
+    type=c(ACT.score, ASA.dose,Months.since.desensitization, PolypsBoth,Thick.MucusBoth,Yellow.MucusBoth,MucusBoth) ~"continuous")%>%
+  add_p(pvalue_fun = ~style_pvalue(.x, digits = 3))
+
+print(tbl3)
+```
+
+
+
+
+```{r demo, echo=FALSE}
+
+dx<-dat_final
+dx$Smoking<-ifelse(is.na(dx$Smoking)==TRUE, dx$smoking.status, dx$Smoking)
+
+dx$smoking<-ifelse(dx$Smoking=="Never","Never", "Ever")
+dx$Sex<-ifelse(dx$Sex=="M", "Male", ifelse(dx$Sex=="F", "Female", dx$Sex))
+
+dx1<-dx%>%
+  drop_na(Conditions)%>%
+  distinct(ptid, .keep_all = T)
+dx2<-dx%>%
+  drop_na(Conditions)%>%
+  distinct(ptid, .keep_all = T)
+dy<-bind_rows(dx1, dx2)
+
+dy<-dx%>%
+  filter(Analyte =="IFN-g (25)")%>%
+  drop_na(Conditions)
+dy$Pre.op.Rhino.subdomain1<-ifelse(is.na(as.numeric(as.character(dy$Pre.op.Rhino.subdomain)))==FALSE,                                 as.numeric(as.character(dy$Pre.op.Rhino.subdomain)),as.numeric(dy$Rhinology.Subdomain.score))
+
+dy$Previous.Sinus.Surgeries  <-ifelse(is.na(dy$Previous.Sinus.Surgeries)==FALSE,                                 dy$Previous.Sinus.Surgeries,as.numeric(dy$Previous.sinus.surgeries.prior.to.desensitization))
+
+
+tbl<-dy%>%
+  dplyr::select(Conditions,Sex,smoking,age, Previous.Sinus.Surgeries, Lund.Mackay.Score,Pre.Op.SNOT.22, Pre.Op.eosinophils...., Pre.Op.FEV1.FVC, Pre.Op.FeNO,Pre.op.Rhino.subdomain1, normConc)%>%
+  tbl_summary(by = Conditions, statistic = list(all_continuous() ~ "{mean} ({sd})", 
+                     all_categorical() ~ "{n} / {N} ({p}%)"),
+    digits = all_continuous() ~ 2,
+    type=c(Previous.Sinus.Surgeries) ~"continuous")%>%
+  add_p(pvalue_fun = ~style_pvalue(.x, digits = 3))
+
+print(tbl)
+
+```
+
+
+
+```{r tableOne for summary table}
+
+d<-dat_final%>%
+  drop_na(Conditions)%>%
+  select(ptid,  Analyte, normConc, Conditions)
+ 
+n<-d%>%
+  group_by(Conditions,Analyte)%>%
+  dplyr::summarise(N=n())%>%
+  pivot_wider(id_cols = Analyte, names_from = Conditions, values_from = N)
+
+d<-pivot_wider(d, id_cols=c(ptid, Conditions), names_from = Analyte,  values_from=normConc)
+ 
+table<-CreateTableOne(d, var=names(d[,3:10]), strata = "Conditions",testNonNormal=kruskal.test, addOverall =TRUE)
+table<-data.frame(print(table,nonnormal =names(d[,3:10]), smd= TRUE))
+table$Analyte<-substr(rownames(table),1,nchar(rownames(table))-15)
+table<-merge(table, n,  by= "Analyte", all=T)
+
+write.csv(table, "Results_Allgroups.csv", row.names = F)
+
+```
+
+
+
+```{r Figure, echo=FALSE}
+d2<-dat_final%>%
+  filter(methods=="epithelial brushings")%>%
+  filter(Analyte %in% c(  "IFN-g (25)", "IL-33 (47)",'IL-10 (27)',"IL-6 (57)", "IL-13 (35)","IL-5 (55)","MIP-3a/CCL20 (28)","TNF-a (75)"))%>%
+  mutate(Analyte=recode(Analyte,"IFN-g (25)"="IFN-¦Ã","IL-33 (47)"="IL-33",'IL-10 (27)'="IL-10","IL-6 (57)"="IL-6","IL-13 (35)"="IL-13","IL-5 (55)"="IL-5","MIP-3a/CCL20 (28)"="CCL20","TNF-a (75)"="TNF-\u03b1"))
+
+d2$Analyte<-factor(d2$Analyte, levels=c("IFN-¦Ã","IL-6","IL-10","CCL20","IL-5","IL-13","IL-33","TNF-\u03b1"))
+
+d2$Conditions<-factor(d2$Conditions, levels=c("ASA", "Pre-op"))
+
+stat.test<-data.frame()
+cytokine<-c("IFN-¦Ã","IL-10","IL-6","CCL20","IL-5","IL-13","IL-33","TNF-\u03b1")
+for (i in cytokine){
+   x<-d2%>%
+     filter(Analyte==i)%>%
+     wilcox_test(normConc~Conditions)%>%
+     add_xy_position(x="Conditions")
+   y<-d2%>%
+     filter(Analyte==i)
+   x$y.position<-ifelse(boxplot.stats(subset(y, Conditions=="ASA")$normConc)$stats[(5)]*1.2>
+                          boxplot.stats(subset(y, Conditions=="Pre-op")$normConc)$stats[(5)]*1.2,
+                        boxplot.stats(subset(y, Conditions=="ASA")$normConc)$stats[(5)]*1.2,
+                         boxplot.stats(subset(y, Conditions=="Pre-op")$normConc)$stats[(5)]*1.2)
+   x$Analyte<-i
+   stat.test<-bind_rows(stat.test, x) 
+}
+
+
+
+stat.test<-stat.test%>%
+  mutate(myformatted.p=paste0(
+    "p = ", ifelse(p<5e-2, formatC(p, format = "e", digits = 1),signif(p, digits =3))))
+
+d3<-merge(d2, data.frame(stat.test)[,c(12,8)], by="Analyte")
+
+d3$Analyte<-factor(d3$Analyte,levels=c("IFN-¦Ã","IL-10","IL-6","CCL20","IL-5","IL-13","IL-33","TNF-\u03b1"))
+
+stat.test$Analyte<-factor(stat.test$Analyte,levels=c("IFN-¦Ã","IL-10","IL-6","CCL20","IL-5","IL-13","IL-33","TNF-\u03b1"))
+library(gg.layers)
+
+d3$Conditions<-factor(d3$Conditions, levels = c("Pre-op", "ASA"))
+
+##subset to exclude outlies
+subx<-data.frame()
+for (i in cytokine){
+  sub<-d2%>%
+     filter(Analyte==i)
+  out<-boxplot(sub$normConc~sub$Conditions)[["out"]]
+  sub2<-sub[!(sub$normConc %in% out),]
+  subx<-bind_rows(subx,sub2)
+}
+
+subx$Conditions<-factor(subx$Conditions, levels = c("Pre-op", "ASA"))
+subx$Analyte<-factor(subx$Analyte,levels=c("IFN-¦Ã","IL-6","IL-10","CCL20","IL-5","IL-13","IL-33","TNF-\u03b1"))
+
+p<-ggplot(data=d3%>%drop_na(normConc), aes(Conditions,normConc))+geom_boxplot2(outlier.shape = NA, width=0.3, width.errorbar = 0.1) +
+  facet_wrap(~Analyte, ncol=4,scales="free_y")+theme_classic2()+theme( axis.title.x = element_blank())+ylab("Normalized concentration, pg/mg")+ theme(panel.grid.major.y=element_line(color='lightgrey'),panel.grid.minor.y =element_line(color='lightgrey'), axis.text = element_text(size=12),axis.text.x =element_text(face="bold"), axis.title.y = element_text(face='bold', size=18), strip.text=element_text(face="bold",size=18),strip.background = element_blank())+
+  geom_blank(aes(y=y.position*1.1))+
+  geom_blank(aes(y=0))+
+  stat_pvalue_manual(stat.test, label="myformatted.p")+scale_x_discrete(labels=c("Pre-ASA", "Post-ASA"))+
+  geom_jitter(data=subx, mapping=aes(Conditions,normConc), width = 0.1, alpha=0.7)
+
+
+
+postscript(colormodel="cmyk")
+ggsave(filename ='Figure1_20221007_v2.tiff',p, width =28, height =18, units ="cm",dpi = 600, device='tiff', limitsize = TRUE, compression = "lzw")
+dev.off()
+```
+
