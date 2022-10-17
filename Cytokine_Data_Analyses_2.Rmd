@@ -63,22 +63,6 @@ print(tbl2)
 ```
 
 
-
-```{r}
-tbl3<-tbl%>%
-  dplyr::select(Conditions, ACT.score,ASA.dose, PolypsBoth, MucusBoth,  Thick.MucusBoth, Yellow.MucusBoth,Months.since.desensitization)%>%
-  tbl_summary(by = Conditions, statistic = list(all_continuous() ~ "{median} ({IQR})", 
-                     all_categorical() ~ "{n} / {N} ({p}%)"),
-    digits = all_continuous() ~ 2,
-    type=c(ACT.score, ASA.dose,Months.since.desensitization, PolypsBoth,Thick.MucusBoth,Yellow.MucusBoth,MucusBoth) ~"continuous")%>%
-  add_p(pvalue_fun = ~style_pvalue(.x, digits = 3))
-
-print(tbl3)
-```
-
-
-
-
 ```{r demo, echo=FALSE}
 
 dx<-dat_final
