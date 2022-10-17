@@ -1,5 +1,5 @@
 ---
-title: "Steriod_responsive_Cytokines_AERD"
+title: "Aspirin_Desensitization_Cytokines_AERD"
 author: "Cailu Lin"
 date: "2022/10/07"
 output: html_document
@@ -145,14 +145,14 @@ write.csv(table, "Results_Allgroups.csv", row.names = F)
 d2<-dat_final%>%
   filter(methods=="epithelial brushings")%>%
   filter(Analyte %in% c(  "IFN-g (25)", "IL-33 (47)",'IL-10 (27)',"IL-6 (57)", "IL-13 (35)","IL-5 (55)","MIP-3a/CCL20 (28)","TNF-a (75)"))%>%
-  mutate(Analyte=recode(Analyte,"IFN-g (25)"="IFN-¦Ã","IL-33 (47)"="IL-33",'IL-10 (27)'="IL-10","IL-6 (57)"="IL-6","IL-13 (35)"="IL-13","IL-5 (55)"="IL-5","MIP-3a/CCL20 (28)"="CCL20","TNF-a (75)"="TNF-\u03b1"))
+  mutate(Analyte=recode(Analyte,"IFN-g (25)"="IFN-Â¦Ãƒ","IL-33 (47)"="IL-33",'IL-10 (27)'="IL-10","IL-6 (57)"="IL-6","IL-13 (35)"="IL-13","IL-5 (55)"="IL-5","MIP-3a/CCL20 (28)"="CCL20","TNF-a (75)"="TNF-\u03b1"))
 
-d2$Analyte<-factor(d2$Analyte, levels=c("IFN-¦Ã","IL-6","IL-10","CCL20","IL-5","IL-13","IL-33","TNF-\u03b1"))
+d2$Analyte<-factor(d2$Analyte, levels=c("IFN-Â¦Ãƒ","IL-6","IL-10","CCL20","IL-5","IL-13","IL-33","TNF-\u03b1"))
 
 d2$Conditions<-factor(d2$Conditions, levels=c("ASA", "Pre-op"))
 
 stat.test<-data.frame()
-cytokine<-c("IFN-¦Ã","IL-10","IL-6","CCL20","IL-5","IL-13","IL-33","TNF-\u03b1")
+cytokine<-c("IFN-Â¦Ãƒ","IL-10","IL-6","CCL20","IL-5","IL-13","IL-33","TNF-\u03b1")
 for (i in cytokine){
    x<-d2%>%
      filter(Analyte==i)%>%
@@ -176,9 +176,9 @@ stat.test<-stat.test%>%
 
 d3<-merge(d2, data.frame(stat.test)[,c(12,8)], by="Analyte")
 
-d3$Analyte<-factor(d3$Analyte,levels=c("IFN-¦Ã","IL-10","IL-6","CCL20","IL-5","IL-13","IL-33","TNF-\u03b1"))
+d3$Analyte<-factor(d3$Analyte,levels=c("IFN-Â¦Ãƒ","IL-10","IL-6","CCL20","IL-5","IL-13","IL-33","TNF-\u03b1"))
 
-stat.test$Analyte<-factor(stat.test$Analyte,levels=c("IFN-¦Ã","IL-10","IL-6","CCL20","IL-5","IL-13","IL-33","TNF-\u03b1"))
+stat.test$Analyte<-factor(stat.test$Analyte,levels=c("IFN-Â¦Ãƒ","IL-10","IL-6","CCL20","IL-5","IL-13","IL-33","TNF-\u03b1"))
 library(gg.layers)
 
 d3$Conditions<-factor(d3$Conditions, levels = c("Pre-op", "ASA"))
@@ -194,7 +194,7 @@ for (i in cytokine){
 }
 
 subx$Conditions<-factor(subx$Conditions, levels = c("Pre-op", "ASA"))
-subx$Analyte<-factor(subx$Analyte,levels=c("IFN-¦Ã","IL-6","IL-10","CCL20","IL-5","IL-13","IL-33","TNF-\u03b1"))
+subx$Analyte<-factor(subx$Analyte,levels=c("IFN-Â¦Ãƒ","IL-6","IL-10","CCL20","IL-5","IL-13","IL-33","TNF-\u03b1"))
 
 p<-ggplot(data=d3%>%drop_na(normConc), aes(Conditions,normConc))+geom_boxplot2(outlier.shape = NA, width=0.3, width.errorbar = 0.1) +
   facet_wrap(~Analyte, ncol=4,scales="free_y")+theme_classic2()+theme( axis.title.x = element_blank())+ylab("Normalized concentration, pg/mg")+ theme(panel.grid.major.y=element_line(color='lightgrey'),panel.grid.minor.y =element_line(color='lightgrey'), axis.text = element_text(size=12),axis.text.x =element_text(face="bold"), axis.title.y = element_text(face='bold', size=18), strip.text=element_text(face="bold",size=18),strip.background = element_blank())+
