@@ -1,6 +1,6 @@
 Analysis provided in the "Long-term aspirin desensitization has mucosal cytokine features of immune tolerance" manuscript
 
-This repository is meant to provide the source code for the analysis provided in the above manuscript by Michael A Kohanski MD PhD1,*, Anas Qatanani BA2, Cailu Lin PhD3, Li Hui Tan PhD1, Jeremy Chang BA1, Andrew Corr BA1, Sabrina Herzberg BA1, Nithin D Adappa MD1, James N Palmer1, John V Bosso MD1, Danielle Reed PhD3, Noam A Cohen MD PhD
+This repository is meant to provide the source code for the analysis provided in the above manuscript by Michael A Kohanski MD PhD,*, Anas Qatanani BA, Cailu Lin PhD, Li Hui Tan PhD, Jeremy Chang BA, Andrew Corr BA, Sabrina Herzberg BA, Nithin D Adappa MD, James N Palmer, John V Bosso MD, Danielle Reed PhD, Noam A Cohen MD PhD
 
 Abstract
 
