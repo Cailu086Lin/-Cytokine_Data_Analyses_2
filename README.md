@@ -2,7 +2,7 @@ Analysis provided in the "Long-term aspirin desensitization has mucosal cytokine
 
 This repository is meant to provide the source code for the analysis provided in the above manuscript by Michael A Kohanski MD PhD,*, Anas Qatanani BA, Cailu Lin PhD, Li Hui Tan PhD, Jeremy Chang BA, Andrew Corr BA, Sabrina Herzberg BA, Nithin D Adappa MD, James N Palmer, John V Bosso MD, Danielle Reed PhD, Noam A Cohen MD PhD
 
-Abstract
+# Abstract
 
 Background: Aspirin desensitization for patients with aspirin exacerbated respiratory disease (AERD) is performed over 1-2 days and it can take 6-12 months for the full clinical benefits to manifest. It is unclear if desensitization is dependent solely on aspirin-mediated inhibition of COX pathways or if there are also COX-independent mechanisms.
 Objective: To determine if there are inflammatory shifts in the sinus mucosa at least 6-months after aspirin desensitization.
@@ -13,7 +13,7 @@ Results: Baseline comparisons between the 2 groups showed no clinically signific
 Conclusion: Increased IL-10 and IFN- and decreased IL-6 in sinus mucosa in the post-ASA group suggests that long-term aspirin desensitization may lead to development of immune tolerance. Further studies are indicated to understand the cellular context and mechanisms associated with the observed shift in cytokine levels.
 
 
- sessionInfo()
+# sessionInfo()
 R version 4.2.1 (2022-06-23 ucrt)
 Platform: x86_64-w64-mingw32/x64 (64-bit)
 Running under: Windows 7 x64 (build 7601) Service Pack 1
